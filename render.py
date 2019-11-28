@@ -5,6 +5,7 @@ import random
 
 from strategies.separation import Separation
 from strategies.top_down import TopDown
+from strategies.annealing import Annealing
 from rectangle import Rectangle
 
 WHITE = (255, 255, 255)
@@ -51,6 +52,7 @@ class Renderer:
 
     def run(self):
         clock = pygame.time.Clock()
+        done = False
 
         while True:
             for event in pygame.event.get():
@@ -62,7 +64,13 @@ class Renderer:
             for r in self.stepper.rectangles:
                 self.draw_rectangle(r)
 
-            self.stepper.step()
+            if not done:
+                self.stepper.step()
+                if not Rectangle.has_overlaps(self.stepper.rectangles):
+                    print("No remaining overlaps!")
+                    print("Total movement: ", Rectangle.total_movement(self.stepper.rectangles))
+                    done = True
+
             pygame.display.update()
             clock.tick(self.framerate)
 

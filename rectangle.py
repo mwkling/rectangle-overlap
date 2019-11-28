@@ -1,3 +1,6 @@
+import itertools
+import math
+
 class Rectangle:
     def __init__(self, left, top, width, height):
         self.left = left
@@ -41,12 +44,22 @@ class Rectangle:
     def original_midy(self):
         return (self.original_top + self.original_bottom) / 2
 
+    @property
+    def distance_from_original(self):
+        return math.sqrt((self.left - self.original_left) ** 2 + (self.top - self.original_top) ** 2)
+
     def overlap(self, other):
         if(self.left >= other.right or other.left >= self.right): 
             return False
         if(self.top >= other.bottom or other.top >= self.bottom): 
             return False
         return True
+
+    def overlapx(self, other):
+        return max(0, min(self.right, other.right) - max(self.left, other.left))
+
+    def overlapy(self, other):
+        return max(0, min(self.bottom, other.bottom) - max(self.top, other.top))
 
     def center_vec(self, other):
         return (self.midx - other.midx, self.midy - other.midy)
@@ -56,3 +69,14 @@ class Rectangle:
 
     def __str__(self):
         return "Rect" + str(self.as_tuple())
+
+    @staticmethod
+    def has_overlaps(rectangles):
+        for (r1, r2) in itertools.combinations(rectangles, 2):
+            if r1.overlap(r2):
+                return True
+        return False
+
+    @staticmethod
+    def total_movement(rectangles):
+        return sum([r.distance_from_original for r in rectangles])
