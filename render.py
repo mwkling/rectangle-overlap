@@ -32,17 +32,28 @@ def random_rect():
     return Rectangle(left, top, width, height)
 
 class Renderer:
-    def __init__(self, rectangles, framerate, strategy):
-        C = getattr(sys.modules[__name__], strategy)
-        self.stepper = C([random_rect() for i in range(rectangles)])
+    def __init__(self, rectangles, framerate, strategy, input_rectangles, output_rectangles):
         self.framerate = framerate
+        self.input_rectangles = input_rectangles
+        self.output_rectangles = output_rectangles
+
+        C = getattr(sys.modules[__name__], strategy)
+
+        if input_rectangles:
+            start_rectangles = Rectangle.from_csv(input_rectangles)
+        else:
+            start_rectangles = [random_rect() for i in range(rectangles)]
+
+        if output_rectangles: Rectangle.to_csv(start_rectangles, output_rectangles)
+
+        self.stepper = C(start_rectangles)
 
         pygame.init()
         size = width, height = 1000, 1000
         self.screen = pygame.display.set_mode(size)
 
-    def draw_rectangle(self, rect):
-        pygame.draw.rect(self.screen, BLUE, rect.as_tuple())
+    def draw_rectangle(self, rect, fill=BLUE):
+        pygame.draw.rect(self.screen, fill, rect.as_tuple())
         pygame.draw.line(self.screen, BLACK, (rect.left, rect.top), (rect.right, rect.top))
         pygame.draw.line(self.screen, BLACK, (rect.right, rect.top), (rect.right, rect.bottom))
         pygame.draw.line(self.screen, BLACK, (rect.right, rect.bottom), (rect.left, rect.bottom))
@@ -64,6 +75,9 @@ class Renderer:
             for r in self.stepper.rectangles:
                 self.draw_rectangle(r)
 
+            for r in Rectangle.overlap_rectangles(self.stepper.rectangles):
+                self.draw_rectangle(r, fill=GREEN)
+
             if not done:
                 self.stepper.step()
                 if not Rectangle.has_overlaps(self.stepper.rectangles):
@@ -79,7 +93,11 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--rectangles", type=int, default=100)
     parser.add_argument("-f", "--framerate", type=int, default=30)
     parser.add_argument("-s", "--strategy", default="Separation")
+    parser.add_argument("-i", "--input_rectangles", help="CSV with saved rectangle configuration")
+    parser.add_argument("-o", "--output_rectangles", help="CSV to write generated rectangles to")
+
     args = parser.parse_args()
 
-    renderer = Renderer(args.rectangles, args.framerate, args.strategy)
+    renderer = Renderer(args.rectangles, args.framerate, args.strategy,
+            args.input_rectangles, args.output_rectangles)
     renderer.run()

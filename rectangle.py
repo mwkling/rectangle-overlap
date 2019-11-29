@@ -1,16 +1,17 @@
 import itertools
 import math
+import csv
 
 class Rectangle:
     def __init__(self, left, top, width, height):
-        self.left = left
-        self.top = top
-        self.width = width
-        self.height = height
+        self.left   = int(left)
+        self.top    = int(top)
+        self.width  = int(width)
+        self.height = int(height)
 
         # So we can track how far the rectangle moved from original position
-        self.original_left = left
-        self.original_top = top
+        self.original_left = self.left
+        self.original_top  = self.top
 
     @property
     def right(self):
@@ -61,6 +62,11 @@ class Rectangle:
     def overlapy(self, other):
         return max(0, min(self.bottom, other.bottom) - max(self.top, other.top))
 
+    def overlap_rect(self, other):
+        left = max(self.left, other.left)
+        top = max(self.top, other.top)
+        return Rectangle(left, top, self.overlapx(other), self.overlapy(other))
+
     def center_vec(self, other):
         return (self.midx - other.midx, self.midy - other.midy)
 
@@ -78,5 +84,25 @@ class Rectangle:
         return False
 
     @staticmethod
+    def overlap_rectangles(rectangles):
+        return [r1.overlap_rect(r2) for r1, r2 in itertools.combinations(rectangles, 2)
+                if r1.overlap(r2)]
+
+    @staticmethod
     def total_movement(rectangles):
         return sum([r.distance_from_original for r in rectangles])
+
+    @staticmethod
+    def to_csv(rectangles, out):
+        with open(out, 'w') as f:
+            writer = csv.writer(f)
+            writer.writerows([r.as_tuple() for r in rectangles])
+
+    @staticmethod
+    def from_csv(csvfile):
+        rects = []
+        with open(csvfile, 'r') as f:
+            reader = csv.reader(f)
+            for (left, top, width, height) in reader:
+                rects.append(Rectangle(left, top, width, height))
+        return rects
