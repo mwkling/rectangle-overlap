@@ -6,6 +6,7 @@ import random
 from strategies.separation import Separation
 from strategies.top_down import TopDown
 from strategies.annealing import Annealing
+from strategies.worst_first import WorstFirst
 from rectangle import Rectangle
 
 WHITE = (255, 255, 255)
@@ -14,11 +15,13 @@ BLUE  = (0, 0, 255)
 RED   = (255, 0, 0)
 GREEN = (0, 255, 0)
 
+
 def random_rect():
     left = random.randint(250, 749)
     top = random.randint(250, 749)
 
     width = height = ratio = None
+
     def gen_dims():
         nonlocal width, height, ratio
         width = random.randint(1, min(750 - left, 100))
@@ -30,6 +33,7 @@ def random_rect():
         gen_dims()
 
     return Rectangle(left, top, width, height)
+
 
 class Renderer:
     def __init__(self, rectangles, framerate, strategy, input_rectangles, output_rectangles):
@@ -59,7 +63,8 @@ class Renderer:
         pygame.draw.line(self.screen, BLACK, (rect.right, rect.bottom), (rect.left, rect.bottom))
         pygame.draw.line(self.screen, BLACK, (rect.left, rect.bottom), (rect.left, rect.top))
 
-        pygame.draw.line(self.screen, RED, (rect.midx, rect.midy), (rect.original_midx, rect.original_midy))
+        pygame.draw.line(self.screen, RED, (rect.midx, rect.midy),
+                         (rect.original_midx, rect.original_midy))
 
     def run(self):
         clock = pygame.time.Clock()
@@ -88,6 +93,7 @@ class Renderer:
             pygame.display.update()
             clock.tick(self.framerate)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-r", "--rectangles", type=int, default=100)
@@ -99,5 +105,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     renderer = Renderer(args.rectangles, args.framerate, args.strategy,
-            args.input_rectangles, args.output_rectangles)
+                        args.input_rectangles, args.output_rectangles)
     renderer.run()

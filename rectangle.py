@@ -2,6 +2,7 @@ import itertools
 import math
 import csv
 
+
 class Rectangle:
     def __init__(self, left, top, width, height):
         self.left   = int(left)
@@ -20,6 +21,10 @@ class Rectangle:
     @property
     def bottom(self):
         return self.top + self.height
+
+    @property
+    def area(self):
+        return self.width * self.height
 
     @property
     def original_right(self):
@@ -50,9 +55,9 @@ class Rectangle:
         return math.sqrt((self.left - self.original_left) ** 2 + (self.top - self.original_top) ** 2)
 
     def overlap(self, other):
-        if(self.left >= other.right or other.left >= self.right): 
+        if(self.left >= other.right or other.left >= self.right):
             return False
-        if(self.top >= other.bottom or other.top >= self.bottom): 
+        if(self.top >= other.bottom or other.top >= self.bottom):
             return False
         return True
 
