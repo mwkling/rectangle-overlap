@@ -54,6 +54,23 @@ class Rectangle:
     def distance_from_original(self):
         return math.sqrt((self.left - self.original_left) ** 2 + (self.top - self.original_top) ** 2)
 
+    @property
+    def deltax(self):
+        return self.original_left - self.left
+
+    @property
+    def deltay(self):
+        return self.original_top - self.top
+
+    def rotate(self, theta):
+        # Note: important not to assign directly to self.left here first, as that would then mess
+        # up calculation of the value for self.top
+        new_left = self.original_left + self.deltax * math.cos(theta) - self.deltay * math.sin(theta)
+        new_top  = self.original_top + self.deltax * math.sin(theta) + self.deltay * math.cos(theta)
+
+        self.left = new_left
+        self.top  = new_top
+
     def overlap(self, other):
         if(self.left >= other.right or other.left >= self.right):
             return False

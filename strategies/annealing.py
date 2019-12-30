@@ -8,7 +8,7 @@ class Annealing:
 
         # TODO how to set/configure these parameters in a smarter way
         self.magnitude = 10
-        self.rounds = 10000
+        self.rounds = 5000
 
     # Energy measure is the total area of overlap of this rectangle with others
     def energy(self, idx):
@@ -35,8 +35,12 @@ class Annealing:
                 old_left = rect.left
 
                 # TODO incorporate rotational moves as well?
-                rect.top += self.magnitude * (random.random() - 0.5)
-                rect.left += self.magnitude * (random.random() - 0.5)
+                if random.random() > 0.5:
+                    rect.top += (random.random() * 15) * (random.random() - 0.5)
+                    rect.left += (random.random() * 15) * (random.random() - 0.5)
+                else:
+                    theta = random.random() * 2 * 3.1416
+                    rect.rotate(theta)
 
                 newe = self.energy(i)
 
@@ -48,7 +52,8 @@ class Annealing:
                     try:
                         accept = random.random() < math.exp((e - newe) / self.temperature)
                     except OverflowError:
-                        print("Overflow error...")
+                        # Not accepted
+                        pass
 
                 if accept:
                     break
