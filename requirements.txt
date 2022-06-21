@@ -1,5 +1,5 @@
 imageio==2.6.1
-numpy==1.17.4
+numpy==1.22.0
 Pillow==6.2.1
 pkg-resources==0.0.0
 pycodestyle==2.5.0
